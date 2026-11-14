@@ -1,0 +1,475 @@
+:root {
+  --bg-dark: #0b111a;
+  --panel-bg: #111926;
+  --card-bg: #182334;
+  --border: #26354a;
+  --text-main: #eef4fa;
+  --text-muted: #8fa3b8;
+  --accent-safe: #38e8c6;
+  --accent-sci: #a78bfa;
+  --accent-warn: #f59e0b;
+  --accent-danger: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-main);
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* 左サイドパネル */
+.panel {
+  width: 390px;
+  min-width: 350px;
+  background: var(--panel-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  gap: 14px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mars-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f59e6c, #b84a32 65%, #4a1c17);
+  box-shadow: 0 0 14px rgba(235, 110, 70, 0.5);
+}
+
+.brand h1 {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+
+.brand p {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.badge-live {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 99px;
+  background: rgba(56, 232, 198, 0.14);
+  color: var(--accent-safe);
+  border: 1px solid rgba(56, 232, 198, 0.35);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.select-box {
+  background: var(--card-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+}
+
+.select-box:focus {
+  border-color: var(--accent-safe);
+}
+
+/* 地点A・Bカード */
+.points-box {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  position: relative;
+}
+
+.point-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.connector-line {
+  width: 2px;
+  height: 12px;
+  background: #3b4f6b;
+  margin-left: 12px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.pin-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0b111a;
+  flex-shrink: 0;
+}
+
+.pin-a { background: #38e8c6; }
+.pin-b { background: #ff7b54; }
+
+.point-title {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.point-coord {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.hint-text {
+  margin-top: 6px;
+  font-size: 10px;
+  color: #7c93ab;
+  line-height: 1.4;
+}
+
+/* 往復1時間判定バナー */
+.time-status {
+  border-radius: 9px;
+  padding: 10px 12px;
+  border: 1px solid;
+  transition: 0.2s;
+}
+
+.time-status.ok {
+  background: rgba(56, 232, 198, 0.1);
+  border-color: rgba(56, 232, 198, 0.4);
+  color: #a7f3d0;
+}
+
+.time-status.warn {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #fde68a;
+}
+
+.time-status.danger {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fecaca;
+}
+
+.ts-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.ts-detail {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+/* ルートカード */
+.routes-list {
+  gap: 10px;
+}
+
+.mini-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.mini-btn:hover {
+  border-color: var(--accent-safe);
+}
+
+.route-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: 0.18s;
+}
+
+.route-card:hover {
+  background: #1e2c40;
+}
+
+.route-card.priority-1.active {
+  border-color: var(--accent-safe);
+  box-shadow: inset 3px 0 0 var(--accent-safe);
+  background: linear-gradient(110deg, rgba(56, 232, 198, 0.12), var(--card-bg));
+}
+
+.route-card.priority-2.active {
+  border-color: var(--accent-sci);
+  box-shadow: inset 3px 0 0 var(--accent-sci);
+  background: linear-gradient(110deg, rgba(167, 139, 250, 0.14), var(--card-bg));
+}
+
+.rc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.priority-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.priority-tag.p1 {
+  background: rgba(56, 232, 198, 0.2);
+  color: var(--accent-safe);
+}
+
+.priority-tag.p2 {
+  background: rgba(167, 139, 250, 0.2);
+  color: var(--accent-sci);
+}
+
+.rc-score {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-safe);
+}
+
+.rc-score.sci {
+  color: var(--accent-sci);
+}
+
+.route-card h3 {
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.line-sample {
+  display: inline-block;
+  width: 16px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.line-sample.safe { background: var(--accent-safe); }
+.line-sample.sci { background: var(--accent-sci); }
+
+.rc-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.rc-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: rgba(11, 17, 26, 0.55);
+  padding: 7px 8px;
+  border-radius: 6px;
+}
+
+.rc-metrics div {
+  display: flex;
+  flex-direction: column;
+}
+
+.rc-metrics span {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.rc-metrics strong {
+  font-size: 12px;
+  color: var(--text-main);
+  margin-top: 2px;
+}
+
+/* トグル設定 */
+.layers-box {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.toggle {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.footer-note {
+  margin-top: auto;
+  font-size: 10px;
+  color: #698096;
+  line-height: 1.5;
+}
+
+/* マップエリア */
+.map-wrapper {
+  flex: 1;
+  position: relative;
+  background: #231715;
+}
+
+#marsMap {
+  width: 100%;
+  height: 100%;
+  background: #2b1a17;
+}
+
+/* カスタムマーカーアイコン */
+.custom-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 900;
+  font-size: 13px;
+  color: #091118;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65);
+  cursor: grab;
+}
+
+.custom-pin:active {
+  cursor: grabbing;
+}
+
+.custom-pin.pin-start {
+  background: #38e8c6;
+}
+
+.custom-pin.pin-end {
+  background: #ff7b54;
+}
+
+.map-legend {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  background: rgba(17, 25, 38, 0.9);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.map-legend div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot-safe { background: var(--accent-safe); }
+.dot-sci { background: var(--accent-sci); }
+.dot-haz { background: rgba(239, 68, 68, 0.7); border: 1px solid #ef4444; }
+.dot-poi { background: #fbbf24; }
+
+@media (max-width: 820px) {
+  .app-container {
+    flex-direction: column;
+  }
+  .panel {
+    width: 100%;
+    height: 48vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .map-wrapper {
+    height: 52vh;
+  }
+  .map-legend {
+    flex-wrap: wrap;
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+    gap: 8px;
+  }
+}
