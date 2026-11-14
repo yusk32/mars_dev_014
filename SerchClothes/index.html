@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MARS EVA NAVIGATOR // HUD & CONTROLLER</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- 画面モード切替バー -->
+  <div id="mode-switcher">
+    <button id="btn-mode-hud" class="active" onclick="switchMode('hud')">[1] 表示用画面 (HUDバイザー)</button>
+    <button id="btn-mode-ctrl" onclick="switchMode('control')">[2] 操作用画面 (コントローラー)</button>
+    <button onclick="openSeparateWindow()">別ウィンドウで操作画面を開く ↗</button>
+  </div>
+
+  <!-- =========================================================
+       [1] 表示用画面（HUD / 宇宙服バイザー越し高視認性ビュー）
+       ========================================================= -->
+  <div id="hud-view" class="active">
+    <canvas id="mars-canvas"></canvas>
+    <div class="visor-frame"></div>
+
+    <div id="danger-banner">⚠ WARNING: HAZARDOUS TERRAIN PROXIMITY</div>
+
+    <!-- 酸素残量 -->
+    <div id="hud-o2-box" class="hud-overlay">
+      <div class="hud-label">O2 RESERVE // LIFE SUPPORT</div>
+      <div class="hud-value-large" id="hud-o2-text">85% (04:15)</div>
+      <div class="o2-bar-bg">
+        <div id="o2-bar-fill"></div>
+      </div>
+    </div>
+
+    <!-- 通信状況（基地局リンク & キャッシュ状態） -->
+    <div id="hud-comm-box" class="hud-overlay">
+      <div class="hud-label">BASE STATION LINK // RELAY-01</div>
+      <div class="hud-value-large comm-online" id="hud-comm-status">ONLINE [92%]</div>
+      <div style="font-size: 12px; margin-top: 4px;" id="hud-cache-info">
+        TERRAIN CACHE: SYNCED (LOCAL)
+      </div>
+    </div>
+
+    <!-- 場所の地名・座標 -->
+    <div id="hud-location-box" class="hud-overlay">
+      <div class="hud-label">SECTOR / LANDMARK</div>
+      <div class="hud-value-large" id="hud-place-name">GALE CRATER - AEOLIS PALUS</div>
+      <div style="font-size: 13px; margin-top: 4px;" id="hud-coords">
+        LAT: -5.4453° S / LON: 137.8414° E | ELEV: -4,501m
+      </div>
+    </div>
+
+    <!-- ルート・危険エリア凡例 -->
+    <div id="hud-legend-box" class="hud-overlay">
+      <div class="legend-item">
+        <span class="line-safe"></span>
+        <span>安全優先ルート (SAFE ROUTE)</span>
+      </div>
+      <div class="legend-item">
+        <span class="line-opt"></span>
+        <span>探索最適ルート (OPTIMAL / DOTTED)</span>
+      </div>
+      <div class="legend-item">
+        <span class="box-danger"></span>
+        <span>危険エリア (HAZARD ZONE)</span>
+      </div>
+      <div style="margin-top: 6px; font-size: 11px; color: var(--hud-cyan);">
+        CONTOUR INTERVAL: 25m (FULL-SCREEN DEM)
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       [2] 操作用画面（コントローラー / 基地・手元端末）
+       ========================================================= -->
+  <div id="control-view">
+    <!-- 通信・地図キャッシュ制御 -->
+    <div class="ctrl-card">
+      <h2>1. 基地局通信 & 地形タイルキャッシュ</h2>
+      <p style="font-size: 12px; color: #ccc;">
+        火星通信の遅延・途絶に備え、全画面分の等高線データをローカルキャッシュに保持します。
+      </p>
+      <div class="ctrl-group">
+        <button class="ctrl-btn" onclick="syncBaseStation()">
+          📡 基地局と通信・等高線データ差分同期 (SYNC)
+        </button>
+        <button class="ctrl-btn danger-btn" onclick="toggleCommState()">
+          ⚡ 通信状態切替（オンライン / オフライン途絶テスト）
+        </button>
+      </div>
+      <div class="log-box" id="comm-log"></div>
+    </div>
+
+    <!-- ルート・表示レイヤー制御 -->
+    <div class="ctrl-card">
+      <h2>2. ナビゲーション・ルート表示設定</h2>
+      <div class="ctrl-group">
+        <button id="toggle-safe" class="ctrl-btn active-toggle" onclick="toggleLayer('showSafeRoute')">
+          [ON] 安全優先ルート（実線）を表示
+        </button>
+        <button id="toggle-opt" class="ctrl-btn active-toggle" onclick="toggleLayer('showOptimalRoute')">
+          [ON] 探索最適ルート（点線）を表示
+        </button>
+        <button id="toggle-danger" class="ctrl-btn active-toggle" onclick="toggleLayer('showDangerZones')">
+          [ON] 危険エリア（クレーター崖・急斜面）を表示
+        </button>
+        <button id="toggle-mono" class="ctrl-btn" onclick="toggleLayer('highContrastMono')">
+          [OFF] 完全白黒ハイコントラストモード（直射日光用）
+        </button>
+      </div>
+    </div>
+
+    <!-- 探索エリア（地名）の選択 -->
+    <div class="ctrl-card">
+      <h2>3. 探索セクター（地名）の移動・指定</h2>
+      <div class="ctrl-group">
+        <label style="font-size: 12px;">ターゲット地点を選択:</label>
+        <select id="sector-select" onchange="changeSector(this.value)">
+          <option value="0">GALE CRATER - AEOLIS PALUS (ゲール・クレーター)</option>
+          <option value="1">MOUNT SHARP FOOTHILLS (シャープ山麓)</option>
+          <option value="2">VERA RUBIN RIDGE (ヴェラ・ルービン尾根)</option>
+          <option value="3">GEDIZ VALLIS CHANNEL (ゲディズ渓谷)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label style="font-size: 12px;">宇宙服・現在位置シミュレーション (X / Y移動):</label>
+        <input type="range" min="15" max="85" value="25" oninput="moveAstronaut(this.value)" />
+      </div>
+    </div>
+
+    <!-- 生命維持・酸素シミュレーション -->
+    <div class="ctrl-card">
+      <h2>4. 宇宙服テレメトリ（酸素・警告テスト）</h2>
+      <div class="ctrl-group">
+        <label style="font-size: 12px;">酸素残量マニュアル調整 (%):</label>
+        <input type="range" min="5" max="100" value="85" oninput="setOxygen(this.value)" />
+        <button class="ctrl-btn danger-btn" onclick="triggerDangerTest()">
+          ⚠ 危険エリア接近アラートをテスト発報
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

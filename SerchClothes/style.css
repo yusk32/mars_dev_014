@@ -1,0 +1,311 @@
+:root {
+  --bg-color: #05070a;
+  --hud-primary: #ffffff;
+  --hud-cyan: #00f0ff;
+  --hud-safe: #00ff88;
+  --hud-opt: #ffaa00;
+  --hud-danger: #ff2a55;
+  --hud-dim: rgba(255, 255, 255, 0.25);
+  --panel-bg: rgba(10, 15, 22, 0.88);
+  --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--hud-primary);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* モード切替バー（上部極小） */
+#mode-switcher {
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid var(--hud-dim);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+#mode-switcher button {
+  background: transparent;
+  color: var(--hud-primary);
+  border: 1px solid var(--hud-dim);
+  padding: 3px 10px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: bold;
+}
+
+#mode-switcher button.active {
+  background: var(--hud-primary);
+  color: #000;
+}
+
+/* =========================================
+   1. 表示用画面（HUD / 宇宙服バイザーモード）
+   ========================================= */
+#hud-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#hud-view.active {
+  display: block;
+}
+
+/* 全画面等高線・地形キャンバス */
+#mars-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* バイザーの四隅フレーム表現 */
+.visor-frame {
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9);
+}
+
+/* HUD ステータスオーバーレイ（高コントラスト） */
+.hud-overlay {
+  position: absolute;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.72);
+  border: 2px solid var(--hud-primary);
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+/* 左上：酸素残量（最重要生命維持） */
+#hud-o2-box {
+  top: 32px;
+  left: 32px;
+  min-width: 240px;
+}
+
+.hud-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.hud-value-large {
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.o2-bar-bg {
+  width: 100%;
+  height: 10px;
+  border: 1px solid var(--hud-primary);
+  margin-top: 6px;
+  background: #000;
+}
+
+#o2-bar-fill {
+  height: 100%;
+  width: 85%;
+  background: var(--hud-primary);
+  transition: width 0.3s, background-color 0.3s;
+}
+
+/* 右上：通信状況（基地局リンク） */
+#hud-comm-box {
+  top: 32px;
+  right: 32px;
+  text-align: right;
+  min-width: 250px;
+}
+
+.comm-online {
+  color: var(--hud-safe);
+}
+
+.comm-offline {
+  color: var(--hud-danger);
+}
+
+/* 左下：地名・座標情報 */
+#hud-location-box {
+  bottom: 32px;
+  left: 32px;
+}
+
+/* 右下：ルート凡例・警告 */
+#hud-legend-box {
+  bottom: 32px;
+  right: 32px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.line-safe {
+  width: 28px;
+  height: 4px;
+  background: var(--hud-safe);
+  display: inline-block;
+}
+
+.line-opt {
+  width: 28px;
+  height: 0;
+  border-top: 3px dashed var(--hud-opt);
+  display: inline-block;
+}
+
+.box-danger {
+  width: 28px;
+  height: 14px;
+  border: 2px solid var(--hud-danger);
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 42, 85, 0.4),
+    rgba(255, 42, 85, 0.4) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  display: inline-block;
+}
+
+/* 危険エリア接近アラート */
+#danger-banner {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--hud-danger);
+  color: #fff;
+  font-weight: bold;
+  padding: 8px 24px;
+  font-size: 16px;
+  letter-spacing: 2px;
+  border: 2px solid #fff;
+  display: none;
+  animation: blink 0.8s infinite alternate;
+}
+
+@keyframes blink {
+  from { opacity: 1; }
+  to { opacity: 0.4; }
+}
+
+/* =========================================
+   2. 操作用画面（コントローラー / 手元端末モード）
+   ========================================= */
+#control-view {
+  width: 100%;
+  height: 100%;
+  padding: 56px 24px 24px;
+  display: none;
+  overflow-y: auto;
+  background: #0b0f17;
+}
+
+#control-view.active {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.ctrl-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--hud-dim);
+  padding: 18px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ctrl-card h2 {
+  font-size: 15px;
+  color: var(--hud-cyan);
+  border-bottom: 1px solid var(--hud-dim);
+  padding-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.ctrl-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ctrl-btn {
+  background: #162030;
+  color: #fff;
+  border: 1px solid var(--hud-cyan);
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.ctrl-btn:hover {
+  background: #23344d;
+}
+
+.ctrl-btn.active-toggle {
+  background: var(--hud-cyan);
+  color: #000;
+  font-weight: bold;
+}
+
+.ctrl-btn.danger-btn {
+  border-color: var(--hud-danger);
+  color: #ff8fa3;
+}
+
+select,
+input[type="range"] {
+  background: #000;
+  color: #fff;
+  border: 1px solid var(--hud-dim);
+  padding: 8px;
+  font-family: var(--font-mono);
+}
+
+.log-box {
+  background: #000;
+  border: 1px solid #333;
+  padding: 8px;
+  font-size: 11px;
+  height: 110px;
+  overflow-y: auto;
+  color: #aaa;
+  line-height: 1.4;
+}

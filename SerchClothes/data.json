@@ -1,0 +1,36 @@
+{
+  "sectors": [
+    {
+      "id": 0,
+      "name": "GALE CRATER - AEOLIS PALUS",
+      "coords": "LAT: -5.4453° S / LON: 137.8414° E | ELEV: -4,501m",
+      "seed": 1.2,
+      "target": { "x": 0.78, "y": 0.24, "label": "TARGET [WAYPOINT-B]" }
+    },
+    {
+      "id": 1,
+      "name": "MOUNT SHARP FOOTHILLS",
+      "coords": "LAT: -5.0812° S / LON: 137.8520° E | ELEV: -3,820m",
+      "seed": 2.7,
+      "target": { "x": 0.82, "y": 0.30, "label": "TARGET [BASE-ALPHA]" }
+    },
+    {
+      "id": 2,
+      "name": "VERA RUBIN RIDGE",
+      "coords": "LAT: -5.4710° S / LON: 137.8190° E | ELEV: -4,150m",
+      "seed": 4.1,
+      "target": { "x": 0.70, "y": 0.20, "label": "TARGET [RIDGE-CLUMP]" }
+    },
+    {
+      "id": 3,
+      "name": "GEDIZ VALLIS CHANNEL",
+      "coords": "LAT: -5.4920° S / LON: 137.8305° E | ELEV: -3,940m",
+      "seed": 5.9,
+      "target": { "x": 0.75, "y": 0.35, "label": "TARGET [CHANNEL-DELTA]" }
+    }
+  ],
+  "dangerZones": [
+    { "xRatio": 0.55, "yRatio": 0.45, "rRatio": 0.14, "label": "STEEP CRATER RIM" },
+    { "xRatio": 0.36, "yRatio": 0.32, "rRatio": 0.08, "label": "UNSTABLE REGOLITH" }
+  ]
+}
