@@ -17,6 +17,8 @@
   let pointA = { lat: 18.4447, lng: 77.4508 };
   let pointB = { lat: 18.4525, lng: 77.4650 };
   let activeMode = 'safe'; // 'safe' | 'science'
+  let waypointsLoaded = false;
+  const waypointChannel = new BroadcastChannel('mars-waypoint-sync');
 
   // 1. Leafletマップ初期化
   const map = L.map('marsMap', {
@@ -125,6 +127,80 @@
 
   const markerA = L.marker([pointA.lat, pointA.lng], { icon: iconA, draggable: true }).addTo(map);
   const markerB = L.marker([pointB.lat, pointB.lng], { icon: iconB, draggable: true }).addTo(map);
+  markerA.dragging.disable();
+  markerB.dragging.disable();
+  document.getElementById('presetSelect').disabled = true;
+
+  function setWaypointSyncStatus(message, isError) {
+    const status = document.getElementById('waypointSyncStatus');
+    status.textContent = message;
+    status.classList.toggle('error', isError);
+  }
+
+  async function saveWaypoints() {
+    try {
+      const response = await fetch('/api/waypoints', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          a: { lat: pointA.lat, lng: pointA.lng },
+          b: { lat: pointB.lat, lng: pointB.lng }
+        })
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || '座標を保存できませんでした');
+      }
+
+      waypointChannel.postMessage({ type: 'waypoints-updated', waypoints: result.waypoints });
+      setWaypointSyncStatus('A/B地点をdata.jsonに保存しました', false);
+    } catch (error) {
+      setWaypointSyncStatus(`座標の保存に失敗しました: ${error.message}`, true);
+    }
+  }
+
+  async function loadWaypoints() {
+    setWaypointSyncStatus('座標を読み込み中...', false);
+    try {
+      const response = await fetch('/api/waypoints');
+      if (!response.ok) {
+        throw new Error('data.jsonを読み込めませんでした');
+      }
+      const result = await response.json();
+      const a = result.waypoints && result.waypoints.a;
+      const b = result.waypoints && result.waypoints.b;
+      if (!a || !b || !Number.isFinite(a.lat) || !Number.isFinite(a.lng) ||
+          !Number.isFinite(b.lat) || !Number.isFinite(b.lng)) {
+        throw new Error('data.jsonのwaypoints形式が正しくありません');
+      }
+
+      pointA = { lat: a.lat, lng: a.lng };
+      pointB = { lat: b.lat, lng: b.lng };
+      markerA.setLatLng(pointA);
+      markerB.setLatLng(pointB);
+      map.setView([pointA.lat, pointA.lng]);
+      waypointsLoaded = true;
+      markerA.dragging.enable();
+      markerB.dragging.enable();
+      document.getElementById('presetSelect').disabled = false;
+      updateAll();
+      setWaypointSyncStatus('data.jsonからA/B地点を読み込みました', false);
+    } catch (error) {
+      setWaypointSyncStatus(`座標の読み込みに失敗しました: ${error.message}（node server.jsで起動してください）`, true);
+    }
+  }
+
+  waypointChannel.onmessage = (event) => {
+    if (!event.data || event.data.type !== 'waypoints-updated' || !event.data.waypoints) return;
+    const { a, b } = event.data.waypoints;
+    if (!a || !b || !Number.isFinite(a.lat) || !Number.isFinite(a.lng) ||
+        !Number.isFinite(b.lat) || !Number.isFinite(b.lng)) return;
+    pointA = { lat: a.lat, lng: a.lng };
+    pointB = { lat: b.lat, lng: b.lng };
+    markerA.setLatLng(pointA);
+    markerB.setLatLng(pointB);
+    updateAll();
+  };
 
   // 火星上の2点間距離 (km) を計算
   function marsDistanceKm(lat1, lng1, lat2, lng2) {
@@ -457,17 +533,21 @@
     pointA = e.target.getLatLng();
     updateAll();
   });
+  markerA.on('dragend', saveWaypoints);
 
   markerB.on('drag', (e) => {
     pointB = e.target.getLatLng();
     updateAll();
   });
+  markerB.on('dragend', saveWaypoints);
 
   // 地図クリックで目的地Bを素早く移動
   map.on('click', (e) => {
+    if (!waypointsLoaded) return;
     pointB = e.latlng;
     markerB.setLatLng(pointB);
     updateAll();
+    saveWaypoints();
   });
 
   // ルートカードクリックで表示強調切替
@@ -482,6 +562,7 @@
 
   // 探査エリアプリセット変更
   document.getElementById('presetSelect').addEventListener('change', (e) => {
+    if (!waypointsLoaded) return;
     const p = PRESETS[e.target.value];
     if (!p) return;
     pointA = { lat: p.lat, lng: p.lng };
@@ -490,6 +571,7 @@
     markerB.setLatLng(pointB);
     map.setView([p.lat, p.lng], p.zoom);
     updateAll();
+    saveWaypoints();
   });
 
   // 再計算ボタン
@@ -508,4 +590,5 @@
 
   // 初回描画
   updateAll();
+  loadWaypoints();
 })();

@@ -257,6 +257,35 @@ body {
   letter-spacing: 1px;
 }
 
+.waypoint-help,
+.waypoint-coordinate,
+.waypoint-sync-status {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.waypoint-help,
+.waypoint-sync-status {
+  color: #ccc;
+}
+
+.waypoint-coordinate {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  background: #000;
+  border: 1px solid var(--hud-dim);
+}
+
+.waypoint-coordinate strong {
+  color: var(--hud-cyan);
+}
+
+.waypoint-sync-status.error {
+  color: #ff8fa3;
+}
+
 .ctrl-group {
   display: flex;
   flex-direction: column;

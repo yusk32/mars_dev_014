@@ -379,6 +379,16 @@ body, html {
   line-height: 1.5;
 }
 
+.sync-status {
+  font-size: 11px;
+  color: var(--accent-safe);
+  line-height: 1.4;
+}
+
+.sync-status.error {
+  color: #fecaca;
+}
+
 /* マップエリア */
 .map-wrapper {
   flex: 1;

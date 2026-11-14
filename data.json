@@ -5,32 +5,68 @@
       "name": "MARS NORTH POLE // BOREALIS PLANITIA (北極地点)",
       "coords": "LAT: 88.0000° N / LON: 0.0000° E | ELEV: -5,120m",
       "seed": 8.5,
-      "target": { "x": 0.80, "y": 0.20, "label": "TARGET [ICE-CAP-ALPHA]" }
+      "target": {
+        "x": 0.8,
+        "y": 0.2,
+        "label": "TARGET [ICE-CAP-ALPHA]"
+      }
     },
     {
       "id": 1,
       "name": "MARS SOUTH POLE // AUSTRALE PLANUM (南極地点)",
       "coords": "LAT: 87.5000° S / LON: 180.0000° E | ELEV: -3,400m",
       "seed": 9.2,
-      "target": { "x": 0.75, "y": 0.25, "label": "TARGET [POLAR-ICE-BASE]" }
+      "target": {
+        "x": 0.75,
+        "y": 0.25,
+        "label": "TARGET [POLAR-ICE-BASE]"
+      }
     },
     {
       "id": 2,
       "name": "RANDOM 01 // THYSIAS REGIO (ランダム地点 A)",
       "coords": "LAT: 12.4500° S / LON: 98.2300° E | ELEV: -1,200m",
       "seed": 3.4,
-      "target": { "x": 0.82, "y": 0.28, "label": "TARGET [CAVE-ENTRANCE]" }
+      "target": {
+        "x": 0.82,
+        "y": 0.28,
+        "label": "TARGET [CAVE-ENTRANCE]"
+      }
     },
     {
       "id": 3,
       "name": "RANDOM 02 // ELYSIUM PLANITIA (ランダム地点 B)",
       "coords": "LAT: 4.5000° N / LON: 156.2000° E | ELEV: -2,850m",
       "seed": 5.1,
-      "target": { "x": 0.70, "y": 0.22, "label": "TARGET [LAVA-TUBE-03]" }
+      "target": {
+        "x": 0.7,
+        "y": 0.22,
+        "label": "TARGET [LAVA-TUBE-03]"
+      }
     }
   ],
   "dangerZones": [
-    { "xRatio": 0.55, "yRatio": 0.45, "rRatio": 0.14, "label": "STEEP CRATER RIM" },
-    { "xRatio": 0.36, "yRatio": 0.32, "rRatio": 0.08, "label": "UNSTABLE REGOLITH" }
-  ]
+    {
+      "xRatio": 0.55,
+      "yRatio": 0.45,
+      "rRatio": 0.14,
+      "label": "STEEP CRATER RIM"
+    },
+    {
+      "xRatio": 0.36,
+      "yRatio": 0.32,
+      "rRatio": 0.08,
+      "label": "UNSTABLE REGOLITH"
+    }
+  ],
+  "waypoints": {
+    "a": {
+      "lat": 18.4447,
+      "lng": 77.4508
+    },
+    "b": {
+      "lat": 18.4525,
+      "lng": 77.465
+    }
+  }
 }

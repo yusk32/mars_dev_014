@@ -111,9 +111,23 @@
       </div>
     </div>
 
+    <div class="ctrl-card">
+      <h2>3. マップで選択した地点</h2>
+      <p class="waypoint-help">地図画面のA/B地点を移動すると、座標がここに同期されます。</p>
+      <div class="waypoint-coordinate">
+        <strong>A地点</strong>
+        <span id="waypoint-a-coords">読み込み中...</span>
+      </div>
+      <div class="waypoint-coordinate">
+        <strong>B地点</strong>
+        <span id="waypoint-b-coords">読み込み中...</span>
+      </div>
+      <div id="waypoint-sync-status" class="waypoint-sync-status" role="status">data.jsonを確認しています...</div>
+    </div>
+
     <!-- 探索エリア（地名）の選択 -->
     <div class="ctrl-card">
-      <h2>3. 探索セクター（地名）の移動・指定</h2>
+      <h2>4. 探索セクター（地名）の移動・指定</h2>
       <div class="ctrl-group">
         <label style="font-size: 12px;">ターゲット地点を選択:</label>
         <select id="sector-select" onchange="changeSector(this.value)">
@@ -131,7 +145,7 @@
 
     <!-- 生命維持・酸素シミュレーション -->
     <div class="ctrl-card">
-      <h2>4. 宇宙服テレメトリ（酸素・警告テスト）</h2>
+      <h2>5. 宇宙服テレメトリ（酸素・警告テスト）</h2>
       <div class="ctrl-group">
         <label style="font-size: 12px;">酸素残量マニュアル調整 (%):</label>
         <input type="range" min="5" max="100" value="85" oninput="setOxygen(this.value)" />

@@ -4,6 +4,7 @@
 const STORAGE_KEY = 'mars_eva_nav_state_v1';
 const CHANNEL_NAME = 'mars_eva_sync_channel';
 const syncChannel = new BroadcastChannel(CHANNEL_NAME);
+const waypointChannel = new BroadcastChannel('mars-waypoint-sync');
 
 const SECTORS = [
   {
@@ -39,7 +40,8 @@ let state = {
   showOptimalRoute: true,
   showDangerZones: true,
   highContrastMono: false,
-  forceDangerAlert: false
+  forceDangerAlert: false,
+  waypoints: null
 };
 
 // ローカルキャッシュから復元
@@ -62,6 +64,12 @@ function saveAndBroadcast() {
 syncChannel.onmessage = (event) => {
   state = event.data;
   renderAll();
+};
+
+waypointChannel.onmessage = (event) => {
+  if (!event.data || event.data.type !== 'waypoints-updated' || !event.data.waypoints) return;
+  state.waypoints = event.data.waypoints;
+  renderWaypointCoordinates();
 };
 
 window.addEventListener('storage', (e) => {
@@ -316,6 +324,7 @@ function renderAll() {
   const sector = SECTORS[state.sectorIndex];
   document.getElementById('hud-place-name').textContent = sector.name;
   document.getElementById('hud-coords').textContent = sector.coords;
+  renderWaypointCoordinates();
 
   // コントローラーボタン状態反映
   updateToggleBtn('toggle-safe', state.showSafeRoute, '安全優先ルート（実線）を表示');
@@ -324,6 +333,47 @@ function renderAll() {
   updateToggleBtn('toggle-mono', state.highContrastMono, '完全白黒ハイコントラストモード（直射日光用）');
 
   drawMap();
+}
+
+function formatMarsCoordinate(lat, lng) {
+  const northSouth = lat >= 0 ? 'N' : 'S';
+  const eastWest = lng >= 0 ? 'E' : 'W';
+  return `${Math.abs(lat).toFixed(4)}°${northSouth}, ${Math.abs(lng).toFixed(4)}°${eastWest}`;
+}
+
+function renderWaypointCoordinates() {
+  const aElement = document.getElementById('waypoint-a-coords');
+  const bElement = document.getElementById('waypoint-b-coords');
+  const statusElement = document.getElementById('waypoint-sync-status');
+  if (!aElement || !bElement || !statusElement) return;
+
+  if (!state.waypoints || !state.waypoints.a || !state.waypoints.b) {
+    aElement.textContent = '未取得';
+    bElement.textContent = '未取得';
+    return;
+  }
+
+  const { a, b } = state.waypoints;
+  aElement.textContent = formatMarsCoordinate(a.lat, a.lng);
+  bElement.textContent = formatMarsCoordinate(b.lat, b.lng);
+  statusElement.textContent = '地図のA/B地点と同期しています';
+  statusElement.classList.remove('error');
+}
+
+async function loadWaypoints() {
+  const statusElement = document.getElementById('waypoint-sync-status');
+  try {
+    const response = await fetch('/api/waypoints');
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || '座標を読み込めませんでした');
+    }
+    state.waypoints = result.waypoints;
+    renderWaypointCoordinates();
+  } catch (error) {
+    statusElement.textContent = `座標の取得に失敗しました: ${error.message}（node server.jsで起動してください）`;
+    statusElement.classList.add('error');
+  }
 }
 
 function updateToggleBtn(id, flag, label) {
@@ -403,3 +453,4 @@ if (params.get('mode') === 'control') {
 }
 addLog('システム起動完了: ローカル地形キャッシュ準備OK');
 renderAll();
+loadWaypoints();
