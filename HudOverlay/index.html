@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111312" />
+  <title>MARS EVA // VISOR HUD</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <img
+    id="camera-background"
+    src="../test/resouce/PIA05108~small.jpg"
+    alt=""
+    aria-hidden="true"
+  />
+  <div class="scene-shade" aria-hidden="true"></div>
+
+  <header class="toolbar">
+    <div class="toolbar-title">
+      <span class="status-light"></span>
+      <span>MARS EVA // VISOR HUD</span>
+    </div>
+    <div class="toolbar-controls">
+      <label class="sr-only" for="background-select">背景画像</label>
+      <select id="background-select">
+        <option value="camera-1">カメラ画像 01</option>
+        <option value="camera-2">カメラ画像 02</option>
+      </select>
+      <button id="map-side-toggle" type="button">地図を右側へ</button>
+      <button id="hud-control-toggle" type="button" aria-expanded="false" aria-controls="hud-control-panel">HUD操作</button>
+    </div>
+  </header>
+
+  <aside id="hud-control-panel" class="hud-control-panel" aria-label="HUD表示設定" hidden>
+    <div class="control-heading">
+      <div>
+        <div class="card-eyebrow">VISOR CONFIGURATION</div>
+        <h1>HUD表示設定</h1>
+      </div>
+      <button id="hud-control-close" class="close-control" type="button" aria-label="設定を閉じる">×</button>
+    </div>
+    <fieldset class="visibility-options">
+      <legend>表示する項目</legend>
+      <label><input id="toggle-map" type="checkbox" checked /> 地図</label>
+      <label><input id="toggle-route" type="checkbox" checked /> 安全ルート</label>
+      <label><input id="toggle-sector" type="checkbox" checked /> Sector・A/B座標</label>
+      <label><input id="toggle-oxygen" type="checkbox" checked /> 酸素量</label>
+      <label><input id="toggle-communication" type="checkbox" checked /> 通信状況</label>
+    </fieldset>
+    <div class="transparency-control">
+      <label for="transparency-range">
+        <span>パネル透過度</span>
+        <output id="transparency-value" for="transparency-range">45%</output>
+      </label>
+      <input id="transparency-range" type="range" min="25" max="70" value="45" />
+      <p>数値を上げると、背景画像がより見えます。</p>
+    </div>
+  </aside>
+
+  <main id="hud-stage" class="hud-stage map-left">
+    <section class="map-stack" aria-label="火星地図とルート情報">
+      <div id="map-frame" class="map-frame">
+        <div class="map-heading">
+          <span>LOCAL TERRAIN MAP</span>
+          <span class="map-live"><span></span> WAYPOINT SYNC</span>
+        </div>
+        <div id="mars-map" aria-label="A地点からB地点までの火星ルート"></div>
+      </div>
+
+      <div class="map-details">
+        <section id="route-card" class="info-card safe-route-card" aria-label="安全ルート">
+          <div class="card-eyebrow">EVA ROUTE</div>
+          <h2><span class="route-symbol"></span>安全ルート</h2>
+          <div id="route-summary" class="route-summary">座標を読み込み中...</div>
+          <div id="route-metrics" class="route-metrics">-- km　/　-- 分</div>
+        </section>
+
+        <section id="sector-card" class="info-card sector-card" aria-label="探索セクター">
+          <div class="card-eyebrow">CURRENT SECTOR</div>
+          <h2 id="sector-name">GALE CRATER</h2>
+          <div id="sector-coords" class="sector-coords">LAT: -- / LON: --</div>
+          <div class="waypoint-coords">
+            <span>A <strong id="waypoint-a">--</strong></span>
+            <span>B <strong id="waypoint-b">--</strong></span>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="vitals-stack" aria-label="宇宙服の状態">
+      <section id="oxygen-card" class="info-card oxygen-card" aria-label="酸素残量">
+        <div class="card-eyebrow">LIFE SUPPORT // O2</div>
+        <div class="vital-main">
+          <span class="vital-icon oxygen-icon" aria-hidden="true">O₂</span>
+          <strong id="oxygen-value">85%</strong>
+        </div>
+        <div class="oxygen-track"><span id="oxygen-bar"></span></div>
+        <div id="oxygen-time" class="vital-detail">04:15 残</div>
+      </section>
+
+      <section id="comm-card" class="info-card comm-card" aria-label="通信状態">
+        <div class="card-eyebrow">BASE STATION LINK</div>
+        <div class="vital-main">
+          <span class="vital-icon comm-icon" aria-hidden="true">↗</span>
+          <strong id="comm-value">ONLINE</strong>
+        </div>
+        <div id="comm-detail" class="vital-detail">RELAY-01 // 92%</div>
+      </section>
+    </section>
+  </main>
+
+  <div id="hud-status" class="hud-status" role="status">座標を読み込み中...</div>
+  <div class="camera-label">CAMERA VIEW // STATIC IMAGE</div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
